@@ -1,13 +1,17 @@
-const { Router } = require("express");
+const express = require("express");
+router = express.Router();
 
-express = require("express");
-const names = {};
-
-router.post("/pairs", (req, res, next) => {
-  res.status(200).json({ names });
+router.post("/", async (req, res, next) => {
+  res.status(200);
+  res.send(req.query);
 });
-router.post("/traditional ", (req, res, next) => {
-  res.status(200).json({ names });
+router.post("/pairs", async (req, res, next) => {
+  res.status(200);
+  res.send(req.query);
+});
+router.post("/traditional ", async (req, res, next) => {
+  res.status(200);
+  res.send(req.query);
 });
 
 module.exports = router;
