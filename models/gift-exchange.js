@@ -1,65 +1,53 @@
 const { BadRequestError } = require("../utils/errors.js");
 
-function getRandomInt(top) {
-  return Math.floor(Math.random() * (top + 1));
-}
-function shuffle(array) {
-  let currentIndex = array.length,
-    randomIndex;
-
-  while (currentIndex != 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-
-  return array;
-}
 class GiftExchange {
-  static pairs(names) {
-    if (names.length % 2 == 1)
-      throw new BadRequestError("Number of names cannot be odd");
-    var tuples = [];
-    var originalSize = names.length;
-    for (let i = 0; i < originalSize / 2; i++) {
-      let idxOne = getRandomInt(names.length - 1);
-      let nameOne = names[idxOne];
-      names.splice(idxOne, 1);
-
-      let idxTwo = getRandomInt(names.length - 1);
-      let nameTwo = names[idxTwo];
-      names.splice(idxTwo, 1);
-
-      tuples.push([nameOne, nameTwo]);
-    }
-
-    return tuples;
+  static getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min);
   }
-
-  static traditional(names) {
-    let shuffledNames = shuffle(names);
-    console.log("out");
-
-    let response = [];
-
-    for (let i = 0; i < names.length; i++) {
-      if (i == names.length - 1) {
-        response.push(
-          `${shuffledNames[i]} is giving a gift to ${shuffledNames[0]}`
-        );
-        break;
-      }
-
-      response.push(
-        `${shuffledNames[i]} is giving a gift to ${shuffledNames[i + 1]}`
-      );
+  static pairs(names) {
+    if (!names) {
+      throw new BadRequestError("Cannt make pairs without names");
     }
+    if (names.length % 2 == 1) {
+      throw new BadRequestError("Cannot pair an odd number of names");
+    }
+    const pairs = [];
+    const namesUsed = [...names];
 
-    return response;
+    while (namesUsed.length > 0) {
+      const firstDude = namesUsed.pop();
+      const randomInd = GiftExchange.getRandomInt(0, namesUsed.length);
+      const secondDude = namesUsed[randomInd];
+      namesUsed.splice(randomInd, 1);
+      if (firstDude && secondDude) {
+        pairs.push([firstDude, secondDude]);
+      } else {
+        throw new BadRequestError("Unexpected error pairing an even number");
+      }
+    }
+    return pairs;
+  }
+  static traditional(names) {
+    if (!names) {
+      throw new BadRequestError("Cannt make traditional without names");
+    }
+    const exchange = [];
+    const namesUsed = [...names];
+    let currentPerson = namesUsed.pop();
+    const firstDude = currentPerson;
+    while (namesUsed.length > 0) {
+      const randomInd = GiftExchange.getRandomInt(0, namesUsed.length);
+      const recipient = namesUsed[randomInd];
+      namesUsed.splice(randomInd, 1);
+      const newLine = `${currentPerson} is giving a gift to ${recipient}`;
+      currentPerson = recipient;
+      exchange.push(newLine);
+    }
+    const lastLine = `${currentPerson} is giving a gift to ${recipient}`;
+    exchange.push(lastLine);
+    return exchange;
   }
 }
 
