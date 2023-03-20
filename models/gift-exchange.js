@@ -1,53 +1,59 @@
-const { BadRequestError } = require("../utils/errors.js");
+const { BadRequestError } = require("../utils/errors");
+//all i am doing is testing something for my projects
 
 class GiftExchange {
-  static getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min) + min);
-  }
-  static pairs(names) {
-    if (!names) {
-      throw new BadRequestError("Cannt make pairs without names");
-    }
-    if (names.length % 2 == 1) {
-      throw new BadRequestError("Cannot pair an odd number of names");
-    }
-    const pairs = [];
-    const namesUsed = [...names];
+  static async pairs(names) {
+    // throw an error if an odd number of users are provided
+    if (names.length % 2 === 1)
+      throw new BadRequestError(
+        "Must provide an even number of users for pairs matching."
+      );
 
-    while (namesUsed.length > 0) {
-      const firstDude = namesUsed.pop();
-      const randomInd = GiftExchange.getRandomInt(0, namesUsed.length);
-      const secondDude = namesUsed[randomInd];
-      namesUsed.splice(randomInd, 1);
-      if (firstDude && secondDude) {
-        pairs.push([firstDude, secondDude]);
-      } else {
-        throw new BadRequestError("Unexpected error pairing an even number");
+    const namedPairs = [];
+
+    while (names.length) {
+      const currentPair = [];
+
+      while (currentPair.length < 2 && names.length > 0) {
+        const selectedNameIndex = Math.floor(Math.random() * names.length);
+        const selectedName = names[selectedNameIndex];
+        names.splice(selectedNameIndex, 1);
+        currentPair.push(selectedName);
       }
+
+      namedPairs.push(currentPair);
     }
-    return pairs;
+
+    return namedPairs;
   }
-  static traditional(names) {
-    if (!names) {
-      throw new BadRequestError("Cannt make traditional without names");
+
+  static async traditional(names) {
+    // shuffle the names array
+    let currentIdx = names.length;
+
+    while (currentIdx > 0) {
+      // pick an element
+      const randomIdx = Math.floor(Math.random() * currentIdx);
+
+      // swap it with current name
+      const temp = names[currentIdx];
+      names[currentIdx] = names[randomIdx];
+      names[randomIdx] = temp;
+
+      currentIdx -= 1;
     }
-    const exchange = [];
-    const namesUsed = [...names];
-    let currentPerson = namesUsed.pop();
-    const firstDude = currentPerson;
-    while (namesUsed.length > 0) {
-      const randomInd = GiftExchange.getRandomInt(0, namesUsed.length);
-      const recipient = namesUsed[randomInd];
-      namesUsed.splice(randomInd, 1);
-      const newLine = `${currentPerson} is giving a gift to ${recipient}`;
-      currentPerson = recipient;
-      exchange.push(newLine);
+
+    // create ordered pairings
+    const pairings = [];
+
+    for (let i = 0; i < names.length; i++) {
+      const giver = names[i];
+      const receiver = i === names.length - 1 ? names[0] : names[i + 1];
+
+      pairings.push(`${giver} is giving a gift to ${receiver}`);
     }
-    const lastLine = `${currentPerson} is giving a gift to ${recipient}`;
-    exchange.push(lastLine);
-    return exchange;
+
+    return pairings;
   }
 }
 

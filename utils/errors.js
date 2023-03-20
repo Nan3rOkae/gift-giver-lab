@@ -6,21 +6,20 @@ class ExpressError extends Error {
   }
 }
 
-class BadRequestError extends ExpressError {
-  constructor(message) {
-    super();
-    this.message = message || "Bad request";
-    this.status = 400;
-  }
-}
-
 class NotFoundError extends ExpressError {
-  constructor(message) {
-    super();
-    this.message = message || "Not Found";
-    this.status = 404;
+  constructor(message = "Not found") {
+    super(message, 404);
   }
 }
 
-exports.BadRequestError = BadRequestError;
-exports.NotFoundError = NotFoundError;
+class BadRequestError extends ExpressError {
+  constructor(message = "Bad Request") {
+    super(message, 400);
+  }
+}
+
+module.exports = {
+  ExpressError,
+  NotFoundError,
+  BadRequestError,
+};
